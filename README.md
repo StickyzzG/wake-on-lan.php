@@ -28,8 +28,10 @@ As there where numerous issues using this code, even it worked fine in my enviro
 
 
 # Installation
+* Install Nginx and PHP
 * Either clone the repository or download the zip file
-* Copy the file ```wake-on-lan.php``` to a directory on your web server
+* sudo chmod -R 777 /var/www/html --> needed for write to the file ``config.json``
+* Copy the file ```wake-on-lan.php``` to a directory on your web server --> e.g. /var/www/html
 
 _Note_: If you need to copy the file to a remote machine use ``scp`` or ``sftp``.
 
@@ -46,9 +48,35 @@ Here are basic steps for linux users:
   * Save your ``php.ini``file
   * Reload your webserver configuration.
 
+# Nginx example file
+
+  * nginx and php template
+  * /etc/nginx/sites-avaible/ place here
+
+        server {
+                listen 80;
+                root /var/www/html;
+                index index.php index.html index.htm index.nginx-debian.html;
+                server_name your_domain;
+
+                location / {
+                        try_files $uri $uri/ =404;
+                }
+
+                location ~ \.php$ {
+                        include snippets/fastcgi-php.conf;
+                        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock; # remeber to check php version 
+                }
+
+                location ~ /\.ht {
+                        deny all;
+                }
+        }
+
 
 # Setup
 Open your favorite browser and navigate to the ```wake-on-lan.php``` url.
+In this example, if you laced your file in /var/www/html --> http://server_name/wake-on-lan.php
 Now you can start adding your the hosts you want to wake.
 
 # General Operation
@@ -91,13 +119,6 @@ The web server needs permission to write to the file. You you may need to adjust
 
 * _Remove_ - delete the row from the configuration. The data of the deleted row is placed in the input fields for adding a new host. If you accidently removed a host you can simply press _Add_ again to add it again.
 * _Add_ - adds a new entry to the table. Fill in the text boxes and press _Add_.
-
-
-# Caveat
-
-  <s>Does not run under linux. Because the linux user used to run php code on the server side usually has very limited permission it cannot create the raw socket to send the magic packet.</s>
-
-__Note__: This caveat no longer applies. Using the sockets extension ```wake-on-lan.php``` no longer suffers this shortcoming.
 
 # License
 ```wake-on-lan.php``` is published under [MIT](LICENSE) license.
